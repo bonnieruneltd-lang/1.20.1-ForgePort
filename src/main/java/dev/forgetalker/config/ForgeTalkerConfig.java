@@ -27,25 +27,25 @@ public final class ForgeTalkerConfig {
     /** Builder used by Forge to assemble and validate the TOML file. */
     public static final ForgeConfigSpec SPEC;
 
-    private static final ForgeConfigSpec.BooleanValue CLUSTER_ENABLED;
-    private static final ForgeConfigSpec.ConfigValue<String> MASTER_HOST;
-    private static final ForgeConfigSpec.IntValue MASTER_PORT;
-    private static final ForgeConfigSpec.ConfigValue<String> CLUSTER_SECRET;
-    private static final ForgeConfigSpec.ConfigValue<String> NODE_ID_OVERRIDE;
-    private static final ForgeConfigSpec.ConfigValue<String> PEER_BIND_HOST;
-    private static final ForgeConfigSpec.IntValue PEER_BIND_PORT;
-    private static final ForgeConfigSpec.IntValue RECONNECT_DELAY;
-    private static final ForgeConfigSpec.IntValue HEARTBEAT_INTERVAL;
-    private static final ForgeConfigSpec.IntValue HEARTBEAT_TIMEOUT;
-    private static final ForgeConfigSpec.BooleanValue ENFORCE_BLOCK_GUARD;
-    private static final ForgeConfigSpec.BooleanValue ENFORCE_ENTITY_GUARD;
-    private static final ForgeConfigSpec.BooleanValue ASSUME_OWNERSHIP_WHEN_UNKNOWN;
-    private static final ForgeConfigSpec.BooleanValue RELAY_MODDED_PAYLOADS;
-    private static final ForgeConfigSpec.IntValue MAX_RELAYED_PAYLOAD_BYTES;
-    private static final ForgeConfigSpec.IntValue PAYLOAD_HOP_LIMIT;
-    private static final ForgeConfigSpec.IntValue DEFERRED_QUEUE_LIMIT;
-    private static final ForgeConfigSpec.BooleanValue ANNOUNCE_CHUNK_INTEREST;
-    private static final ForgeConfigSpec.BooleanValue DEBUG_LOGGING;
+    private static ForgeConfigSpec.BooleanValue CLUSTER_ENABLED;
+    private static ForgeConfigSpec.ConfigValue<String> MASTER_HOST;
+    private static ForgeConfigSpec.IntValue MASTER_PORT;
+    private static ForgeConfigSpec.ConfigValue<String> CLUSTER_SECRET;
+    private static ForgeConfigSpec.ConfigValue<String> NODE_ID_OVERRIDE;
+    private static ForgeConfigSpec.ConfigValue<String> PEER_BIND_HOST;
+    private static ForgeConfigSpec.IntValue PEER_BIND_PORT;
+    private static ForgeConfigSpec.IntValue RECONNECT_DELAY;
+    private static ForgeConfigSpec.IntValue HEARTBEAT_INTERVAL;
+    private static ForgeConfigSpec.IntValue HEARTBEAT_TIMEOUT;
+    private static ForgeConfigSpec.BooleanValue ENFORCE_BLOCK_GUARD;
+    private static ForgeConfigSpec.BooleanValue ENFORCE_ENTITY_GUARD;
+    private static ForgeConfigSpec.BooleanValue ASSUME_OWNERSHIP_WHEN_UNKNOWN;
+    private static ForgeConfigSpec.BooleanValue RELAY_MODDED_PAYLOADS;
+    private static ForgeConfigSpec.IntValue MAX_RELAYED_PAYLOAD_BYTES;
+    private static ForgeConfigSpec.IntValue PAYLOAD_HOP_LIMIT;
+    private static ForgeConfigSpec.IntValue DEFERRED_QUEUE_LIMIT;
+    private static ForgeConfigSpec.BooleanValue ANNOUNCE_CHUNK_INTEREST;
+    private static ForgeConfigSpec.BooleanValue DEBUG_LOGGING;
 
     /**
      * Snapshot read by hot paths. Starts in standalone mode so that a server which never loads the

@@ -229,7 +229,7 @@ public final class ClusterBridge {
         if (!isClusterActive()) {
             return;
         }
-        transport.sendTo(target, new StatusRequest(requestId));
+        transport.sendTo(target, new StatusRequest(requestId, localNode.value()));
     }
 
     /**

@@ -23,6 +23,7 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -109,7 +110,6 @@ public final class MultiPaperTcpTransport implements ClusterTransport {
     private volatile Channel peerListenerChannel;
     private volatile ScheduledFuture<?> heartbeatTask;
     private volatile ScheduledFuture<?> reconnectTask;
-    private volatile long lastPongMillis;
     private volatile boolean running;
     private volatile String lastDetail = "not started";
 
@@ -216,6 +216,7 @@ public final class MultiPaperTcpTransport implements ClusterTransport {
                 peer.writeAndFlush(message);
             }
         }
+        metrics.recordOutboundFrame();
     }
 
     /**
@@ -265,7 +266,8 @@ public final class MultiPaperTcpTransport implements ClusterTransport {
     @Override
     public String describe() {
         return state + " master=" + settings.masterHost() + ":" + settings.masterPort()
-                + " peers=" + peerChannels.size() + " pending=" + pending.size()
+                + " peers=" + peerChannels.size() + "/" + advertisedPeerCount
+                + " pending=" + pending.size()
                 + " peerListener=" + (settings.peerBindPort() > 0
                     ? settings.peerBindHost() + ":" + settings.peerBindPort() : "disabled")
                 + " last=\"" + lastDetail + "\"";

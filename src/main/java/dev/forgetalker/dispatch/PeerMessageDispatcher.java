@@ -6,6 +6,7 @@ import dev.forgetalker.bridge.TransportListener;
 import dev.forgetalker.bridge.TransportState;
 import dev.forgetalker.bridge.message.BridgeMessage;
 import dev.forgetalker.bridge.message.ControlMessages;
+import dev.forgetalker.bridge.message.ControlMessages.HelloAck;
 import dev.forgetalker.bridge.message.ControlMessages.StatusRequest;
 import dev.forgetalker.bridge.message.ControlMessages.StatusResponse;
 import dev.forgetalker.bridge.message.MutationMessages.BlockMutation;

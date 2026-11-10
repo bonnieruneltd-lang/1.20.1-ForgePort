@@ -132,6 +132,49 @@ public final class MutationMessages {
         }
 
         /**
+         * Value-based equality including the NBT bytes.
+         *
+         * <h2>Why this override exists</h2>
+         * The generated record {@code equals} compares the {@code byte[]} component by reference, so
+         * two frames carrying identical NBT would be considered different. That breaks frame
+         * de-duplication, metrics grouping and the codec round-trip tests. Arrays are compared by
+         * content instead.
+         *
+         * @param other object to compare against, may be {@code null}
+         * @return {@code true} when every field, including the NBT bytes, is equal
+         */
+        @Override
+        public boolean equals(Object other) {
+            if (this == other) {
+                return true;
+            }
+            if (!(other instanceof EntitySpawn that)) {
+                return false;
+            }
+            return Double.compare(that.x, x) == 0
+                    && Double.compare(that.y, y) == 0
+                    && Double.compare(that.z, z) == 0
+                    && Float.compare(that.yaw, yaw) == 0
+                    && Float.compare(that.pitch, pitch) == 0
+                    && chunk.equals(that.chunk)
+                    && entityUuid.equals(that.entityUuid)
+                    && entityTypeId.equals(that.entityTypeId)
+                    && originNode.equals(that.originNode)
+                    && Arrays.equals(nbt, that.nbt);
+        }
+
+        /**
+         * Hash consistent with {@link #equals(Object)}: array content, not identity.
+         *
+         * @return hash of all components including the NBT bytes
+         */
+        @Override
+        public int hashCode() {
+            int result = Objects.hash(chunk, entityUuid, entityTypeId, x, y, z, yaw, pitch, originNode);
+            return 31 * result + Arrays.hashCode(nbt);
+        }
+
+        /**
          * @return {@link MessageType#ENTITY_SPAWN}
          */
         @Override
@@ -187,6 +230,43 @@ public final class MutationMessages {
          */
         public boolean canForward(int forwardLimit) {
             return hop < forwardLimit;
+        }
+
+        /**
+         * Value-based equality including the payload bytes.
+         *
+         * <h2>Why this override exists</h2>
+         * The generated record {@code equals} compares {@code byte[]} by reference. Payloads are
+         * relayed multiple times (broadcast + retries), so deduplicating and testing them requires
+         * content comparison.
+         *
+         * @param other object to compare against, may be {@code null}
+         * @return {@code true} when every field, including the payload bytes, is equal
+         */
+        @Override
+        public boolean equals(Object other) {
+            if (this == other) {
+                return true;
+            }
+            if (!(other instanceof PayloadRelay that)) {
+                return false;
+            }
+            return hop == that.hop
+                    && senderUuid.equals(that.senderUuid)
+                    && channel.equals(that.channel)
+                    && originNode.equals(that.originNode)
+                    && Arrays.equals(payload, that.payload);
+        }
+
+        /**
+         * Hash consistent with {@link #equals(Object)}: array content, not identity.
+         *
+         * @return hash of all components including the payload bytes
+         */
+        @Override
+        public int hashCode() {
+            int result = Objects.hash(senderUuid, channel, hop, originNode);
+            return 31 * result + Arrays.hashCode(payload);
         }
 
         /**
