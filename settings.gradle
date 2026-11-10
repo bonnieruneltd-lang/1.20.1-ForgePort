@@ -1,0 +1,30 @@
+// ------------------------------------------------------------------------------------------------
+// Forge Talker - Gradle settings
+//
+// The plugin repositories below are the minimum required set for a ForgeGradle 6 build that
+// also uses MixinGradle:
+//   * maven.minecraftforge.net  -> net.minecraftforge.gradle (ForgeGradle 6.x)
+//   * repo.spongepowered.org    -> org.spongepowered.mixin (MixinGradle)
+// Keep them in this order: ForgeGradle must resolve before MixinGradle so that the Mixin
+// annotation processor can read ForgeGradle's SRG mappings.
+// ------------------------------------------------------------------------------------------------
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        maven {
+            name = 'MinecraftForge'
+            url = 'https://maven.minecraftforge.net/'
+        }
+        maven {
+            name = 'Sponge Snapshots'
+            url = 'https://repo.spongepowered.org/repository/maven-public/'
+        }
+    }
+}
+
+plugins {
+    // Resolves a JDK 17 toolchain automatically on machines that do not have one installed.
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '0.5.0'
+}
+
+rootProject.name = 'ForgeTalker'

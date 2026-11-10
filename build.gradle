@@ -1,0 +1,165 @@
+// ------------------------------------------------------------------------------------------------
+// Forge Talker - build script
+//
+// Target: Minecraft 1.20.1 / Forge 47.x / Java 17 ONLY. Do not raise or lower these versions:
+// the Mixin targets in src/main/java/dev/forgetalker/mixin are validated against the 1.20.1
+// Mojang-official mappings (see docs/ARCHITECTURE.md, "Mixin injection points").
+//
+// Build layout:
+//   * ForgeGradle 6 supplies the deobfuscated Minecraft + Forge classpath and reobfuscation.
+//   * MixinGradle wires the Mixin annotation processor, which emits
+//     build/refmap/forgetalker.refmap.json (named -> SRG). Without that refmap the mixins work
+//     in the dev environment but silently fail to apply in production.
+//   * JUnit 5 is used for pure-Java unit tests (ownership policy, wire codec, queues). Tests must
+//     never touch Minecraft classes so they can run without a game launch.
+// ------------------------------------------------------------------------------------------------
+plugins {
+    id 'eclipse'
+    id 'idea'
+    id 'maven-publish'
+    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
+    id 'org.spongepowered.mixin' version '0.7.+'
+}
+
+version = mod_version
+group = mod_group_id
+
+base {
+    archivesName = mod_id
+}
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+println "Forge Talker build: Java ${System.getProperty('java.version')}, " +
+        "JVM ${System.getProperty('java.vm.version')} (${System.getProperty('java.vendor')}), " +
+        "arch ${System.getProperty('os.arch')}"
+
+minecraft {
+    // "official" == Mojang names. All Mixin targets in this project are written against these
+    // names and remapped to SRG by the Mixin annotation processor at compile time.
+    mappings channel: mapping_channel, version: mapping_version
+
+    copyIdeResources = true
+
+    runs {
+        configureEach {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', ''
+            property 'forge.logging.console.level', 'debug'
+
+            mods {
+                "${mod_id}" {
+                    source sourceSets.main
+                }
+            }
+        }
+
+        client {
+            property 'forge.enabledGameTestNamespaces', mod_id
+        }
+
+        server {
+            property 'forge.enabledGameTestNamespaces', mod_id
+            args '--nogui'
+        }
+
+        data {
+            workingDirectory project.file('run-data')
+            args '--mod', mod_id, '--all', '--output', file('src/generated/resources/'),
+                    '--existing', file('src/main/resources/')
+        }
+    }
+}
+
+// Emits build/refmap/forgetalker.refmap.json and registers the config with the jar.
+// The refmap file name MUST match the "refmap" field inside forgetalker.mixins.json.
+mixin {
+    add sourceSets.main, "${mod_id}.refmap.json"
+    config "${mod_id}.mixins.json"
+}
+
+sourceSets.main.resources { srcDir 'src/generated/resources' }
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
+
+    // Generates the named -> SRG refmap. Must stay on the compile annotation processor path.
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+
+    testImplementation platform('org.junit:junit-bom:5.10.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+
+tasks.named('processResources', ProcessResources).configure {
+    var replaceProperties = [
+            minecraft_version      : minecraft_version,
+            minecraft_version_range: minecraft_version_range,
+            forge_version          : forge_version,
+            forge_version_range    : forge_version_range,
+            loader_version_range   : loader_version_range,
+            mod_id                 : mod_id,
+            mod_name               : mod_name,
+            mod_license            : mod_license,
+            mod_version            : mod_version,
+            mod_authors            : mod_authors,
+            mod_description        : mod_description
+    ]
+    inputs.properties replaceProperties
+
+    filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) {
+        expand replaceProperties + [project: project]
+    }
+}
+
+tasks.named('jar', Jar).configure {
+    manifest {
+        attributes([
+                'Specification-Title'     : mod_id,
+                'Specification-Vendor'    : mod_authors,
+                'Specification-Version'   : '1',
+                'Implementation-Title'    : project.name,
+                'Implementation-Version'  : project.jar.archiveVersion,
+                'Implementation-Vendor'   : mod_authors,
+                'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+                // Forge/Mixin read this manifest attribute at class-load time. MixinGradle writes
+                // the config into the jar but does NOT add the manifest entry for Forge.
+                'MixinConfigs'            : "${mod_id}.mixins.json"
+        ])
+    }
+
+    // Reobfuscate named -> SRG for production. Dev runs use the named jar.
+    finalizedBy 'reobfJar'
+}
+
+tasks.named('test', Test).configure {
+    useJUnitPlatform()
+    // Unit tests are pure Java: they must not require a Minecraft launch.
+    testLogging {
+        events 'passed', 'failed', 'skipped'
+        exceptionFormat = 'full'
+    }
+    systemProperty 'forgetalker.test.nodeId', 'test-node'
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+publishing {
+    publications {
+        register('mavenJava', MavenPublication) {
+            artifact jar
+        }
+    }
+    repositories {
+        maven {
+            url "file://${project.projectDir}/mcmodsrepo"
+        }
+    }
+}

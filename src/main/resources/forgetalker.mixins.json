@@ -1,0 +1,17 @@
+{
+  "required": true,
+  "minVersion": "0.8.5",
+  "package": "dev.forgetalker.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "forgetalker.refmap.json",
+  "mixins": [
+    "LevelSetBlockMixin",
+    "ServerLevelEntityMixin",
+    "ServerGamePacketListenerImplMixin"
+  ],
+  "client": [],
+  "server": [],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

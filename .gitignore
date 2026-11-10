@@ -1,0 +1,35 @@
+# Gradle
+.gradle/
+build/
+run/
+run-data/
+mcmodsrepo/
+!gradle/wrapper/gradle-wrapper.jar
+
+# Local tooling (JDK, reference MDK, Gradle home) - never commit
+.tooling/
+.gradle-home/
+.logs/
+
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+.eclipse/
+.settings/
+.classpath
+.project
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local run artefacts
+eula.txt
+logs/
+crash-reports/
+
+# Agent scratch space
+.cline-home/
